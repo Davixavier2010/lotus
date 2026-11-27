@@ -1,0 +1,449 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useReducedMotion,
+} from 'framer-motion';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpenCheck,
+  Check,
+  Save,
+  User,
+} from 'lucide-react';
+import type { ChapterData } from '@/data/lotus-content';
+import { HankoMark } from './HankoMark';
+import { ThemeToggle } from './ThemeToggle';
+import { ChapterAudioPlayer } from './ChapterAudioPlayer';
+import { ReaderAuthModal } from './ReaderAuthModal';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+
+interface ChapterReaderProps {
+  chapter: ChapterData;
+  prevChapter: ChapterData | null;
+  nextChapter: ChapterData | null;
+}
+
+export function ChapterReader({
+  chapter,
+  prevChapter,
+  nextChapter,
+}: ChapterReaderProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+
+  const [reflectionUnlocked, setReflectionUnlocked] = useState(false);
+  const [personalNote, setPersonalNote] = useState('');
+  const [noteStatus, setNoteStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  // Se o usuário chegou via link direto #reflexao (ex: Mapa de Pilares), abre a reflexão
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#reflexao') {
+      setReflectionUnlocked(true);
+    }
+  }, []);
+
+  // Carrega progresso local e/ou do Supabase
+  useEffect(() => {
+    const localKey = `lotus_note_${chapter.slug}`;
+    const savedLocal =
+      typeof window !== 'undefined' ? window.localStorage.getItem(localKey) : null;
+    if (savedLocal) {
+      setPersonalNote(savedLocal);
+    }
+
+    if (!isSupabaseConfigured()) return;
+    const supabase = createClient();
+    if (!supabase) return;
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user?.email) {
+        setUserEmail(data.user.email);
+        const res = await fetch('/api/progress');
+        if (res.ok) {
+          const json = (await res.json()) as {
+            progress?: Array<{
+              chapter_slug: string;
+              story_completed: boolean;
+              personal_note: string | null;
+            }>;
+          };
+          const current = json.progress?.find(
+            (p) => p.chapter_slug === chapter.slug
+          );
+          if (current) {
+            if (current.story_completed) setReflectionUnlocked(true);
+            if (current.personal_note) setPersonalNote(current.personal_note);
+          }
+        }
+      }
+    });
+  }, [chapter.slug]);
+
+  async function handleUnlockReflection() {
+    setReflectionUnlocked(true);
+
+    if (userEmail && isSupabaseConfigured()) {
+      await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapterSlug: chapter.slug,
+          storyCompleted: true,
+          reflectionCompleted: false,
+          personalNote,
+        }),
+      });
+    }
+  }
+
+  async function handleSaveNote() {
+    setNoteStatus('saving');
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(`lotus_note_${chapter.slug}`, personalNote);
+    }
+
+    if (userEmail && isSupabaseConfigured()) {
+      await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapterSlug: chapter.slug,
+          storyCompleted: true,
+          reflectionCompleted: true,
+          personalNote,
+        }),
+      });
+    }
+
+    setNoteStatus('saved');
+    setTimeout(() => setNoteStatus('idle'), 2400);
+  }
+
+  return (
+    <div className="washi-desk min-h-screen px-2.5 sm:px-6 lg:px-10">
+      <div className="washi-sheet mx-auto min-h-screen max-w-4xl text-[#141416]">
+        {/* Barra de progresso de leitura */}
+      <motion.div
+        style={shouldReduceMotion ? undefined : { scaleX: scrollYProgress }}
+        className="fixed left-0 right-0 top-0 z-50 h-[3px] origin-left bg-[#C82E36]"
+      />
+
+      {/* Cabeçalho limpo de leitura */}
+      <header className="sticky top-0 z-40 border-b border-[#141416]/12 bg-[#F4EEDE]/94 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+          <Link
+            href="/#sumario"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#141416] transition-colors hover:text-[#C82E36]"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            <span>Voltar ao Sumário</span>
+          </Link>
+
+          <div className="hidden items-center gap-2.5 sm:flex">
+            <HankoMark size="sm" label="蓮" />
+            <span className="font-serif-editorial text-sm font-medium text-[#4A463F]">
+              Capítulo {chapter.number} · {chapter.title}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 px-3 py-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
+            >
+              <User className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{userEmail ? 'Leitor conectado' : 'Área do Leitor'}</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-3xl px-5 pb-24 pt-12 sm:px-8 sm:pt-16">
+        {/* Título do Capítulo */}
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="border-b border-[#141416]/15 pb-8"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-[#C82E36]">
+            <span>Capítulo {chapter.number}</span>
+            <span className="text-[#4A463F]">{chapter.pagesLabel}</span>
+          </div>
+          <h1 className="mt-3 font-serif-editorial text-4xl font-medium tracking-[-0.02em] text-[#000000] sm:text-5xl">
+            {chapter.title}
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-[#4A463F]">
+            {chapter.originNote}
+          </p>
+        </motion.div>
+
+        {/* BLOCO 1 — O CONTO */}
+        <section aria-labelledby="conto-heading" className="pt-12">
+          <h2
+            id="conto-heading"
+            className="text-sm font-semibold uppercase tracking-wider text-[#C82E36]"
+          >
+            O Conto
+          </h2>
+
+          <ChapterAudioPlayer
+            chapterSlug={chapter.slug}
+            chapterTitle={chapter.title}
+          />
+
+          {/* Ilustração de abertura do capítulo */}
+          <motion.figure
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className="my-8 flex justify-center"
+          >
+            <img
+              src={chapter.openingIllustration.src}
+              alt={chapter.openingIllustration.alt}
+              className="washi-plate max-h-[340px] w-auto select-none object-contain mix-blend-multiply"
+            />
+          </motion.figure>
+
+          <div className="mt-7 max-w-[65ch] space-y-6 font-serif-editorial text-[1.18rem] leading-[1.9] text-[#141416]">
+            {chapter.storyParagraphs.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
+
+          {/* Ilustração de encerramento do conto (quando disponível) */}
+          {chapter.closingIllustration && (
+            <figure className="mt-12 flex justify-center">
+              <img
+                src={chapter.closingIllustration.src}
+                alt={chapter.closingIllustration.alt}
+                className={
+                  chapter.closingIllustration.fullBleed
+                    ? 'washi-plate max-h-[460px] w-auto object-contain'
+                    : 'washi-plate max-h-[420px] w-auto select-none object-contain mix-blend-multiply'
+                }
+              />
+            </figure>
+          )}
+
+          {/* Símbolo tradicional japonês de fim + Ritual de transição */}
+          <div className="mt-14 border-y border-[#141416]/15 py-10 text-center">
+            <p
+              aria-label="Fim do conto"
+              className="font-jp-seal text-3xl tracking-widest text-[#141416]"
+            >
+              終わり
+            </p>
+
+            {!reflectionUnlocked ? (
+              <div className="mt-6 space-y-3">
+                <p className="mx-auto max-w-md text-sm leading-relaxed text-[#4A463F]">
+                  O conto chegou ao fim. Quando estiver pronto para explorar os
+                  conceitos filosóficos e suas aplicações no cotidiano, abra a
+                  reflexão abaixo.
+                </p>
+                <motion.button
+                  type="button"
+                  onClick={handleUnlockReflection}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+                  className="mt-2 inline-flex items-center gap-2.5 rounded-md bg-[#C82E36] px-6 py-3 text-sm font-medium text-[#FAF6EB] transition-colors hover:bg-[#A82229]"
+                >
+                  <BookOpenCheck className="h-4 w-4" aria-hidden="true" />
+                  <span>Abrir Reflexão de Lótus</span>
+                </motion.button>
+              </div>
+            ) : (
+              <p className="mt-3 text-xs font-medium text-[#C82E36]">
+                Conto concluído · Reflexão de Lótus aberta abaixo
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* BLOCO 2 — REFLEXÃO DE LÓTUS */}
+        <AnimatePresence>
+          {reflectionUnlocked && (
+            <motion.section
+              id="reflexao"
+              aria-labelledby="reflexao-heading"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              className="pt-14"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <h2
+                  id="reflexao-heading"
+                  className="font-serif-editorial text-3xl font-medium text-[#C82E36]"
+                >
+                  Reflexão de Lótus
+                </h2>
+                <div className="flex flex-wrap gap-1.5">
+                  {chapter.concepts.map((c) => (
+                    <span
+                      key={c}
+                      className="rounded border border-[#141416]/15 bg-[#FAF6EB] px-2 py-0.5 text-xs font-medium text-[#141416]"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-8 max-w-[65ch] space-y-6 font-serif-editorial text-[1.125rem] leading-[1.85] text-[#141416]">
+                {chapter.reflectionBlocks.map((block, index) => {
+                  if (block.type === 'concept' && block.conceptName) {
+                    return (
+                      <div
+                        key={index}
+                        className="rounded-xl border border-[#141416]/15 bg-[#FAF6EB] p-5 sm:p-6"
+                      >
+                        <p>
+                          <strong className="font-semibold text-[#C82E36]">
+                            {block.conceptName}:
+                          </strong>{' '}
+                          {block.text}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return <p key={index}>{block.text}</p>;
+                })}
+              </div>
+
+              <p
+                aria-label="Fim do capítulo"
+                className="mt-10 font-jp-seal text-lg tracking-widest text-[#C82E36]"
+              >
+                終わり
+              </p>
+
+              {/* Caderno Pessoal do Leitor */}
+              <div className="mt-14 rounded-xl border border-[#141416]/15 bg-[#FAF6EB] p-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-serif-editorial text-xl font-medium text-[#000000]">
+                    Caderno de Reflexão Pessoal
+                  </h3>
+                  <span className="text-xs text-[#4A463F]">
+                    {userEmail
+                      ? 'Sincronizado na sua conta Supabase'
+                      : 'Salvo neste navegador'}
+                  </span>
+                </div>
+                <textarea
+                  value={personalNote}
+                  onChange={(e) => setPersonalNote(e.target.value)}
+                  rows={4}
+                  maxLength={2000}
+                  placeholder="Anote o que este capítulo despertou em você hoje..."
+                  aria-label="Anotação pessoal sobre o capítulo"
+                  className="mt-3 w-full rounded-md border border-[#141416]/20 bg-[#F4EEDE]/70 p-3.5 text-sm leading-relaxed text-[#141416] placeholder:text-[#4A463F]/75 focus:border-[#C82E36] focus:outline-none"
+                />
+                <div className="mt-3 flex items-center justify-between gap-4">
+                  <span className="text-xs text-[#4A463F]">
+                    {personalNote.length}/2000 caracteres
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleSaveNote}
+                    disabled={noteStatus === 'saving'}
+                    className="inline-flex items-center gap-2 rounded-md bg-[#141416] px-4 py-2 text-xs font-medium text-[#F4EEDE] transition-colors hover:bg-[#C82E36]"
+                  >
+                    {noteStatus === 'saved' ? (
+                      <>
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span>Anotação salva</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span>
+                          {noteStatus === 'saving' ? 'Salvando...' : 'Salvar anotação'}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
+
+        {/* Navegação de rodapé entre capítulos */}
+        <nav
+          aria-label="Navegação entre capítulos"
+          className="mt-16 flex flex-col justify-between gap-4 border-t border-[#141416]/15 pt-8 sm:flex-row sm:items-center"
+        >
+          {prevChapter ? (
+            <Link
+              href={`/capitulos/${prevChapter.slug}`}
+              className="group inline-flex items-center gap-3 text-left text-sm font-medium text-[#141416] transition-colors hover:text-[#C82E36]"
+            >
+              <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>
+                <span className="block text-xs text-[#4A463F]">
+                  Capítulo Anterior
+                </span>
+                <span className="font-serif-editorial text-base">
+                  Cap. {prevChapter.number}: {prevChapter.title}
+                </span>
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href="/#sumario"
+              className="inline-flex items-center gap-2 text-sm font-medium text-[#4A463F] transition-colors hover:text-[#141416]"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              <span>Voltar ao Sumário</span>
+            </Link>
+          )}
+
+          {nextChapter ? (
+            <Link
+              href={`/capitulos/${nextChapter.slug}`}
+              className="group inline-flex items-center justify-end gap-3 text-right text-sm font-medium text-[#141416] transition-colors hover:text-[#C82E36]"
+            >
+              <span>
+                <span className="block text-xs text-[#4A463F]">
+                  Próximo Capítulo
+                </span>
+                <span className="font-serif-editorial text-base">
+                  Cap. {nextChapter.number}: {nextChapter.title}
+                </span>
+              </span>
+              <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            </Link>
+          ) : (
+            <Link
+              href="/#acompanhamento"
+              className="inline-flex items-center justify-end gap-2 text-sm font-medium text-[#C82E36] transition-colors hover:text-[#A82229]"
+            >
+              <span>Acompanhar novos capítulos</span>
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          )}
+        </nav>
+      </main>
+
+      <ReaderAuthModal
+        isOpen={authOpen}
+        onClose={() => setAuthOpen(false)}
+        userEmail={userEmail}
+        onAuthChange={setUserEmail}
+      />
+      </div>
+    </div>
+  );
+}

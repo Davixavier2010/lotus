@@ -1,26 +1,200 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --washi-desk: #E3DAC3;
+  --washi-bg: #F4EEDE;
+  --washi-surface: #FAF6EB;
+  --washi-recessed: #EAE2CE;
+  --ink-primary: #141416;
+  --ink-strong: #000000;
+  --ink-muted: #4A463F;
+  --hanko-red: #C82E36;
+  --hanko-red-hover: #A82229;
+  --hairline: rgba(20, 20, 22, 0.14);
+  --petal-fill: #E28489;
+  --petal-stroke: #C82E36;
+  --petal-opacity: 0.55;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --washi-desk: #0D0D0F;
+  --washi-bg: #161618;
+  --washi-surface: #1E1E22;
+  --washi-recessed: #121214;
+  --ink-primary: #EAE3D2;
+  --ink-strong: #FAF6EB;
+  --ink-muted: #A8A092;
+  --hanko-red: #D94149;
+  --hanko-red-hover: #C82E36;
+  --hairline: rgba(234, 227, 210, 0.16);
+  --petal-fill: #F7B8BF;
+  --petal-stroke: #FF6B74;
+  --petal-opacity: 0.85;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--washi-bg);
+    color: var(--ink-primary);
+  }
+
+  body {
+    background-color: var(--washi-bg);
+    color: var(--ink-primary);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--hanko-red);
+    color: #F4EEDE;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-serif), Georgia, serif;
+    color: var(--ink-strong);
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--hanko-red);
+    outline-offset: 3px;
+    border-radius: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom subtle editorial scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--washi-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 20, 22, 0.22);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hanko-red);
+}
+
+.font-serif-editorial {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.font-jp-seal {
+  font-family: var(--font-jp), serif;
+}
+
+/* Lateral de papel washi cortado/rasgado (deckle edge) */
+.washi-desk {
+  background-color: var(--washi-desk);
+  transition: background-color 0.25s ease;
+}
+
+.washi-sheet {
+  position: relative;
+  background-color: var(--washi-bg);
+  color: var(--ink-primary);
+  box-shadow: 0 12px 40px rgba(20, 20, 22, 0.08);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.dark .washi-sheet {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
+}
+
+.washi-sheet::before,
+.washi-sheet::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  pointer-events: none;
+  z-index: 30;
+  background-repeat: repeat-y;
+  background-size: 10px 64px;
+}
+
+.washi-sheet::before {
+  left: -9px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M10 0 L6 5 L8 11 L3 17 L7 23 L4 30 L8 36 L3 43 L7 50 L5 57 L10 64 Z' fill='%23F4EEDE'/%3E%3C/svg%3E");
+}
+
+.washi-sheet::after {
+  right: -9px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M0 0 L5 6 L2 13 L7 19 L3 26 L6 33 L2 40 L7 47 L4 55 L0 64 Z' fill='%23F4EEDE'/%3E%3C/svg%3E");
+}
+
+.dark .washi-sheet::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M10 0 L6 5 L8 11 L3 17 L7 23 L4 30 L8 36 L3 43 L7 50 L5 57 L10 64 Z' fill='%23161618'/%3E%3C/svg%3E");
+}
+
+.dark .washi-sheet::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M0 0 L5 6 L2 13 L7 19 L3 26 L6 33 L2 40 L7 47 L4 55 L0 64 Z' fill='%23161618'/%3E%3C/svg%3E");
+}
+
+/* Adaptação de utilitários de papel/tinta para modo escuro */
+.dark .bg-\[\#F4EEDE\],
+.dark .bg-\[\#F4EEDE\]\/60,
+.dark .bg-\[\#F4EEDE\]\/70,
+.dark .bg-\[\#F4EEDE\]\/92,
+.dark .bg-\[\#F4EEDE\]\/94 {
+  background-color: var(--washi-bg) !important;
+}
+
+.dark .bg-\[\#FAF6EB\],
+.dark .bg-\[\#FAF6EB\]\/65 {
+  background-color: var(--washi-surface) !important;
+}
+
+.dark .bg-\[\#EAE2CE\]\/60 {
+  background-color: var(--washi-recessed) !important;
+}
+
+.dark .text-\[\#000000\] {
+  color: var(--ink-strong) !important;
+}
+
+.dark .text-\[\#141416\],
+.dark .text-\[\#141416\]\/90,
+.dark .text-\[\#141416\]\/80 {
+  color: var(--ink-primary) !important;
+}
+
+.dark .text-\[\#4A463F\] {
+  color: var(--ink-muted) !important;
+}
+
+.dark .border-\[\#141416\]\/12,
+.dark .border-\[\#141416\]\/15,
+.dark .border-\[\#141416\]\/18,
+.dark .border-\[\#141416\]\/20,
+.dark .border-\[\#141416\]\/25,
+.dark .divide-\[\#141416\]\/12 > :not(:last-child),
+.dark .divide-\[\#141416\]\/15 > :not(:last-child) {
+  border-color: var(--hairline) !important;
+}
+
+.dark .mix-blend-multiply {
+  mix-blend-mode: normal;
+  filter: brightness(0.94) contrast(1.03);
+}
+
+/* Prancha de ilustração com borda de papel rasgado (deckle edge) */
+.washi-plate {
+  clip-path: polygon(
+    1% 2%, 8% 0.5%, 16% 1.8%, 25% 0.6%, 34% 1.5%, 44% 0.4%, 55% 1.6%, 66% 0.5%, 76% 1.7%, 86% 0.6%, 94% 1.5%, 99% 0.8%,
+    98.5% 9%, 99.6% 18%, 98.4% 28%, 99.5% 38%, 98.3% 49%, 99.4% 60%, 98.5% 71%, 99.6% 82%, 98.6% 92%, 99.2% 99%,
+    91% 98.4%, 82% 99.5%, 72% 98.3%, 61% 99.4%, 50% 98.2%, 39% 99.5%, 28% 98.4%, 18% 99.3%, 9% 98.5%, 1.2% 99.2%,
+    0.5% 90%, 1.6% 80%, 0.4% 69%, 1.5% 58%, 0.6% 47%, 1.7% 36%, 0.5% 25%, 1.6% 14%
+  );
+  filter: drop-shadow(0 4px 12px rgba(20, 20, 22, 0.08));
 }
