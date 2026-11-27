@@ -11,6 +11,7 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
+  Bookmark,
   BookOpenCheck,
   Check,
   Clock,
@@ -30,6 +31,7 @@ import { HankoMark } from './HankoMark';
 import { ThemeToggle } from './ThemeToggle';
 import { ChapterAudioPlayer, type AudioSegment } from './ChapterAudioPlayer';
 import { ReaderAuthModal } from './ReaderAuthModal';
+import { TanzakuBookmarkModal } from './TanzakuBookmarkModal';
 import { useFullBookAudio } from './FullBookAudioContext';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
@@ -72,6 +74,7 @@ export function ChapterReader({
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
   const [copiedShare, setCopiedShare] = useState(false);
   const [immersiveMode, setImmersiveMode] = useState(false);
+  const [bookmarkOpen, setBookmarkOpen] = useState(false);
 
   // Se o usuário chegou via link direto #reflexao (ex: Mapa de Pilares), abre a reflexão
   useEffect(() => {
@@ -582,26 +585,38 @@ export function ChapterReader({
                   <span className="text-xs text-[#4A463F]">
                     {personalNote.length}/2000 caracteres
                   </span>
-                  <button
-                    type="button"
-                    onClick={handleSaveNote}
-                    disabled={noteStatus === 'saving'}
-                    className="inline-flex items-center gap-2 rounded-md bg-[#141416] px-4 py-2 text-xs font-medium text-[#F4EEDE] transition-colors hover:bg-[#C82E36]"
-                  >
-                    {noteStatus === 'saved' ? (
-                      <>
-                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span>Anotação salva</span>
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span>
-                          {noteStatus === 'saving' ? 'Salvando...' : 'Salvar anotação'}
-                        </span>
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setBookmarkOpen(true)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 bg-transparent px-3 py-2 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
+                      title="Gerar marcador Tanzaku com a arte do capítulo e sua anotação"
+                    >
+                      <Bookmark className="h-3.5 w-3.5 text-[#C82E36]" aria-hidden="true" />
+                      <span>Gerar Marcador</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSaveNote}
+                      disabled={noteStatus === 'saving'}
+                      className="inline-flex items-center gap-2 rounded-md bg-[#141416] px-4 py-2 text-xs font-medium text-[#F4EEDE] transition-colors hover:bg-[#C82E36]"
+                    >
+                      {noteStatus === 'saved' ? (
+                        <>
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>Anotação salva</span>
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>
+                            {noteStatus === 'saving' ? 'Salvando...' : 'Salvar anotação'}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.section>
@@ -668,7 +683,7 @@ export function ChapterReader({
         <div className="mt-12 flex items-center justify-between border-t border-[#141416]/10 pt-6 text-xs text-[#4A463F]">
           <span>Lótus — Edição Digital do Autor</span>
           <span className="rounded border border-[#141416]/15 bg-[#FAF6EB] px-2 py-0.5 text-[11px] font-medium text-[#141416]">
-            v1.0.0
+            v1.1.0
           </span>
         </div>
       </main>
@@ -678,6 +693,13 @@ export function ChapterReader({
         onClose={() => setAuthOpen(false)}
         userEmail={userEmail}
         onAuthChange={setUserEmail}
+      />
+
+      <TanzakuBookmarkModal
+        isOpen={bookmarkOpen}
+        onClose={() => setBookmarkOpen(false)}
+        chapter={chapter}
+        personalNote={personalNote}
       />
 
       {/* Botão flutuante minimalista de saída quando em Modo Imersivo */}

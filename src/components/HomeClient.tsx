@@ -420,7 +420,7 @@ export function HomeClient() {
             </span>
             <span>· Contos orientais sob uma ótica intrapessoal</span>
             <span className="rounded-full border border-[#141416]/20 bg-[#EDE0C8] px-2 py-0.5 text-[11px] font-medium text-[#141416]">
-              v1.0.0
+              v1.1.0
             </span>
           </div>
           <div className="flex items-center gap-4">
