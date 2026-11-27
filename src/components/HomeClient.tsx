@@ -226,10 +226,7 @@ export function HomeClient() {
           </div>
         </section>
 
-        {/* 3. BÚSSOLA INTRAPESSOAL */}
-        <BussolaIntrapessoal />
-
-        {/* 4. SUMÁRIO INTERATIVO */}
+        {/* 3. SUMÁRIO INTERATIVO */}
         <section
           id="sumario"
           className="border-t border-[#141416]/12 py-20 sm:py-24"
@@ -321,6 +318,9 @@ export function HomeClient() {
             </div>
           </div>
         </section>
+
+        {/* 4. BÚSSOLA INTRAPESSOAL */}
+        <BussolaIntrapessoal />
 
         {/* 5. MAPA DOS PILARES FILOSÓFICOS */}
         <section
