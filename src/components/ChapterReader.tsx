@@ -334,16 +334,16 @@ export function ChapterReader({
           immersiveMode ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
         }`}
       >
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-3 py-3 sm:px-8 sm:py-4">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-1.5 px-2.5 py-2.5 sm:gap-2 sm:px-8 sm:py-4">
           {/* Lado esquerdo: Marca Lótus e retorno ao Sumário */}
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             <Link
               href="/"
-              className="flex items-center gap-1.5 text-[#000000] transition-opacity hover:opacity-80"
+              className="flex items-center gap-1 text-[#000000] transition-opacity hover:opacity-80 sm:gap-1.5"
               title="Página Inicial do Livro Lótus"
             >
               <HankoMark size="sm" label="蓮" />
-              <span className="font-serif-editorial text-base font-medium tracking-tight sm:text-lg">
+              <span className="font-serif-editorial text-sm font-medium tracking-tight sm:text-base">
                 Lótus
               </span>
             </Link>
@@ -353,21 +353,22 @@ export function ChapterReader({
             <Link
               href="/#sumario"
               className="inline-flex items-center gap-1 text-xs font-medium text-[#4A463F] transition-colors hover:text-[#C82E36] sm:text-sm"
+              title="Voltar ao Sumário de Capítulos"
             >
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>Sumário</span>
+              <span className="hidden xs:inline sm:inline">Sumário</span>
             </Link>
           </div>
 
           {/* Lado direito: Ferramentas de leitura organizadas e sem poluição */}
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             {/* Controles de Tamanho de Fonte */}
             <div className="flex items-center rounded-md border border-[#141416]/20 bg-[#FAF6EB]/60 p-0.5 text-xs text-[#141416]">
               <button
                 type="button"
                 onClick={() => handleFontSizeChange('sm')}
                 aria-label="Tamanho de fonte padrão"
-                className={`rounded px-1.5 py-0.5 font-medium transition-colors ${
+                className={`rounded px-1 py-0.5 font-medium transition-colors sm:px-1.5 ${
                   fontSize === 'sm'
                     ? 'bg-[#141416] text-[#FAF6EB]'
                     : 'text-[#4A463F] hover:text-[#141416]'
@@ -379,7 +380,7 @@ export function ChapterReader({
                 type="button"
                 onClick={() => handleFontSizeChange('base')}
                 aria-label="Tamanho de fonte médio"
-                className={`rounded px-1.5 py-0.5 font-medium transition-colors ${
+                className={`rounded px-1 py-0.5 font-medium transition-colors sm:px-1.5 ${
                   fontSize === 'base'
                     ? 'bg-[#141416] text-[#FAF6EB]'
                     : 'text-[#4A463F] hover:text-[#141416]'
@@ -391,7 +392,7 @@ export function ChapterReader({
                 type="button"
                 onClick={() => handleFontSizeChange('lg')}
                 aria-label="Tamanho de fonte grande"
-                className={`rounded px-1.5 py-0.5 font-medium transition-colors ${
+                className={`rounded px-1 py-0.5 font-medium transition-colors sm:px-1.5 ${
                   fontSize === 'lg'
                     ? 'bg-[#141416] text-[#FAF6EB]'
                     : 'text-[#4A463F] hover:text-[#141416]'
@@ -412,7 +413,7 @@ export function ChapterReader({
               <Highlighter className="h-3.5 w-3.5 text-[#C82E36]" aria-hidden="true" />
               <span className="hidden sm:inline">Trechos</span>
               {highlights.length > 0 && (
-                <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#C82E36] px-1 text-[10px] font-bold text-[#FAF6EB]">
+                <span className="flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-[#C82E36] px-1 text-[9px] font-bold text-[#FAF6EB] sm:h-4 sm:min-w-[16px] sm:text-[10px]">
                   {highlights.length}
                 </span>
               )}
@@ -466,14 +467,15 @@ export function ChapterReader({
 
             <ThemeToggle />
 
+            {/* Área do Leitor - visível em telas médias e desktop para evitar empurrar a barra no mobile */}
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
               aria-label="Área do Leitor"
-              className="inline-flex items-center gap-1 rounded-md border border-[#141416]/20 p-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36] sm:px-3 sm:py-1.5"
+              className="hidden items-center gap-1 rounded-md border border-[#141416]/20 p-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36] md:inline-flex sm:px-3 sm:py-1.5"
             >
               <User className="h-3.5 w-3.5" aria-hidden="true" />
-              <span className="hidden sm:inline">
+              <span>
                 {userEmail ? 'Leitor conectado' : 'Área do Leitor'}
               </span>
             </button>
