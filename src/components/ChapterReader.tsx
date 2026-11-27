@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   motion,
@@ -11,11 +11,13 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
+  BookmarkCheck,
   BookOpenCheck,
   Check,
   Clock,
   Copy,
   Headphones,
+  Highlighter,
   Maximize2,
   Minimize2,
   Save,
@@ -30,6 +32,7 @@ import { HankoMark } from './HankoMark';
 import { ThemeToggle } from './ThemeToggle';
 import { ChapterAudioPlayer, type AudioSegment } from './ChapterAudioPlayer';
 import { ReaderAuthModal } from './ReaderAuthModal';
+import { SavedQuotesDrawer, type SavedHighlight } from './SavedQuotesDrawer';
 import { useFullBookAudio } from './FullBookAudioContext';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
@@ -72,6 +75,100 @@ export function ChapterReader({
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
   const [copiedShare, setCopiedShare] = useState(false);
   const [immersiveMode, setImmersiveMode] = useState(false);
+
+  // Sublinhado Pessoal (Meus Trechos)
+  const [highlights, setHighlights] = useState<SavedHighlight[]>([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectionPopup, setSelectionPopup] = useState<{
+    text: string;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  // Carrega trechos guardados do localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = window.localStorage.getItem('lotus_saved_highlights');
+      if (saved) {
+        setHighlights(JSON.parse(saved));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  function saveHighlightsList(newList: SavedHighlight[]) {
+    setHighlights(newList);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem('lotus_saved_highlights', JSON.stringify(newList));
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  function handleSaveCurrentSelection() {
+    if (!selectionPopup || !selectionPopup.text.trim()) return;
+    const cleanText = selectionPopup.text.trim();
+    const alreadySaved = highlights.some(
+      (h) => h.text.trim().toLowerCase() === cleanText.toLowerCase()
+    );
+
+    if (!alreadySaved) {
+      const newItem: SavedHighlight = {
+        id: `hl_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        text: cleanText,
+        chapterNumber: chapter.number,
+        chapterTitle: chapter.title,
+        savedAt: Date.now(),
+      };
+      saveHighlightsList([newItem, ...highlights]);
+    }
+
+    setSelectionPopup(null);
+    if (typeof window !== 'undefined') {
+      window.getSelection()?.removeAllRanges();
+    }
+  }
+
+  function handleRemoveHighlight(id: string) {
+    saveHighlightsList(highlights.filter((h) => h.id !== id));
+  }
+
+  function handleClearAllHighlights() {
+    saveHighlightsList([]);
+  }
+
+  // Listener para capturar seleção de texto no conto ou na reflexão
+  const handleTextSelection = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) {
+      setSelectionPopup(null);
+      return;
+    }
+    const text = sel.toString().trim();
+    // Requer pelo menos 4 caracteres para evitar acidentes
+    if (text.length < 4) {
+      setSelectionPopup(null);
+      return;
+    }
+
+    try {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        // Posiciona o botão flutuante logo acima do trecho selecionado
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + window.scrollY - 10;
+        setSelectionPopup({ text, x, y });
+      }
+    } catch {
+      setSelectionPopup(null);
+    }
+  }, []);
 
   // Se o usuário chegou via link direto #reflexao (ex: Mapa de Pilares), abre a reflexão
   useEffect(() => {
@@ -295,6 +392,23 @@ export function ChapterReader({
               </button>
             </div>
 
+            {/* Botão Trechos Guardados */}
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Abrir Trechos Guardados"
+              className="relative inline-flex items-center gap-1 rounded-md border border-[#141416]/20 p-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36] sm:px-2.5 sm:py-1.5"
+              title="Ver trechos que você sublinhou e guardou"
+            >
+              <Highlighter className="h-3.5 w-3.5 text-[#C82E36]" aria-hidden="true" />
+              <span className="hidden sm:inline">Trechos</span>
+              {highlights.length > 0 && (
+                <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#C82E36] px-1 text-[10px] font-bold text-[#FAF6EB]">
+                  {highlights.length}
+                </span>
+              )}
+            </button>
+
             {/* Botão de Compartilhar */}
             <button
               type="button"
@@ -427,7 +541,11 @@ export function ChapterReader({
             />
           </motion.figure>
 
-          <div className={`mt-7 max-w-[65ch] space-y-6 font-serif-editorial ${fontSizeClasses} text-[#141416]`}>
+          <div
+            onMouseUp={handleTextSelection}
+            onTouchEnd={handleTextSelection}
+            className={`mt-7 max-w-[65ch] space-y-6 font-serif-editorial ${fontSizeClasses} text-[#141416] select-text`}
+          >
             {chapter.storyParagraphs.map((paragraph, index) => (
               <p
                 key={index}
@@ -532,7 +650,11 @@ export function ChapterReader({
                 onActiveIndexChange={setActiveReflexaoIdx}
               />
 
-              <div className={`mt-8 max-w-[65ch] space-y-6 font-serif-editorial ${reflectionFontSizeClasses} text-[#141416]`}>
+              <div
+                onMouseUp={handleTextSelection}
+                onTouchEnd={handleTextSelection}
+                className={`mt-8 max-w-[65ch] space-y-6 font-serif-editorial ${reflectionFontSizeClasses} text-[#141416] select-text`}
+              >
                 {chapter.reflectionBlocks.map((block, index) => {
                   const isActive = activeReflexaoIdx === index;
                   const isDimmed = activeReflexaoIdx !== null && !isActive;
@@ -704,6 +826,47 @@ export function ChapterReader({
         userEmail={userEmail}
         onAuthChange={setUserEmail}
       />
+
+      {/* Gaveta de Trechos Guardados */}
+      <SavedQuotesDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        highlights={highlights}
+        onRemoveHighlight={handleRemoveHighlight}
+        onClearAll={handleClearAllHighlights}
+      />
+
+      {/* Mini-toolbar flutuante ao selecionar texto */}
+      <AnimatePresence>
+        {selectionPopup && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'absolute',
+              left: `${selectionPopup.x}px`,
+              top: `${selectionPopup.y}px`,
+              transform: 'translate(-50%, -100%)',
+            }}
+            className="z-50 pointer-events-auto"
+          >
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                // Impede que o clique limpe a seleção antes de salvar
+                e.preventDefault();
+                handleSaveCurrentSelection();
+              }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#C82E36]/30 bg-[#141416] px-3.5 py-1.5 text-xs font-medium text-[#FAF6EB] shadow-xl backdrop-blur transition-transform hover:scale-105 hover:bg-[#C82E36]"
+            >
+              <Highlighter className="h-3.5 w-3.5 text-[#F4EEDE]" aria-hidden="true" />
+              <span>Guardar trecho</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Botão flutuante minimalista de saída quando em Modo Imersivo */}
       <AnimatePresence>
