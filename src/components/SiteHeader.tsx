@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { HankoMark } from './HankoMark';
 import { ThemeToggle } from './ThemeToggle';
 import { PetalButtonLink } from './PetalButtonLink';
-import { BookOpen, Sparkles, User } from 'lucide-react';
+import { BookOpen, User } from 'lucide-react';
 
 interface SiteHeaderProps {
   onOpenAuth?: () => void;
@@ -58,10 +58,9 @@ export function SiteHeader({ onOpenAuth, onOpenOracle, userEmail }: SiteHeaderPr
             <button
               type="button"
               onClick={onOpenOracle}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#C82E36]/35 bg-[#C82E36]/8 px-2.5 py-1.5 text-xs font-medium text-[#C82E36] transition-colors hover:bg-[#C82E36] hover:text-[#FAF6EB]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 bg-transparent px-3 py-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
               title="Tirar uma reflexão ou consultar as filosofias orientais do livro"
             >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="hidden md:inline">Reflexão do Momento</span>
               <span className="md:hidden">Reflexão</span>
             </button>

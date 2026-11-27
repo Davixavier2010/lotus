@@ -4,13 +4,11 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Sparkles,
   RefreshCw,
   Copy,
   Check,
   X,
   BookOpen,
-  Share2,
 } from 'lucide-react';
 import { HankoMark } from './HankoMark';
 
@@ -117,15 +115,6 @@ export function QuoteOracleModal({ isOpen, onClose }: QuoteOracleModalProps) {
     }
   }
 
-  async function handleShareWhatsApp() {
-    const text = encodeURIComponent(
-      `“${current.quote}”\n\n— ${current.concept} · Do livro Lótus por Davi Xavier (16 anos)\nLeia o conto: https://lotus-livro.vercel.app/capitulos/${current.chapterSlug}`
-    );
-    if (typeof window !== 'undefined') {
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-    }
-  }
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -182,9 +171,8 @@ export function QuoteOracleModal({ isOpen, onClose }: QuoteOracleModalProps) {
             {/* Conteúdo da Citação */}
             <div className="my-7">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C82E36]/30 bg-[#C82E36]/10 px-3 py-1 text-xs font-medium text-[#C82E36]">
-                  <Sparkles className="h-3 w-3" />
-                  <span>{current.concept}</span>
+                <span className="inline-flex items-center rounded-full border border-[#141416]/15 bg-[#E2D0B0] px-3 py-1 text-xs font-medium text-[#141416]">
+                  {current.concept}
                 </span>
                 <span className="text-xs font-medium text-[#4A463F]">
                   Capítulo {current.chapterNumber}
@@ -229,8 +217,8 @@ export function QuoteOracleModal({ isOpen, onClose }: QuoteOracleModalProps) {
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 bg-[#EDE0C8] px-3 py-2 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
-                  title="Copiar texto com referência para colar"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 bg-[#EDE0C8] px-3.5 py-2 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
+                  title="Copiar citação para colar onde quiser"
                 >
                   {copied ? (
                     <>
@@ -240,19 +228,9 @@ export function QuoteOracleModal({ isOpen, onClose }: QuoteOracleModalProps) {
                   ) : (
                     <>
                       <Copy className="h-3.5 w-3.5" />
-                      <span>Copiar</span>
+                      <span>Copiar reflexão</span>
                     </>
                   )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleShareWhatsApp}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[#25D366]/40 bg-[#25D366]/10 px-3 py-2 text-xs font-medium text-[#128C7E] transition-colors hover:bg-[#25D366] hover:text-[#FFFFFF]"
-                  title="Compartilhar no WhatsApp"
-                >
-                  <Share2 className="h-3.5 w-3.5" />
-                  <span>WhatsApp</span>
                 </button>
 
                 <Link
