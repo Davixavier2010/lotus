@@ -335,22 +335,31 @@ export function ChapterReader({
         }`}
       >
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-3 py-3 sm:px-8 sm:py-4">
-          <Link
-            href="/#sumario"
-            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-[#141416] transition-colors hover:text-[#C82E36] sm:text-sm"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden xs:inline sm:inline">Voltar ao Sumário</span>
-            <span className="xs:hidden sm:hidden">Sumário</span>
-          </Link>
+          {/* Lado esquerdo: Marca Lótus e retorno ao Sumário */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-[#000000] transition-opacity hover:opacity-80"
+              title="Página Inicial do Livro Lótus"
+            >
+              <HankoMark size="sm" label="蓮" />
+              <span className="font-serif-editorial text-base font-medium tracking-tight sm:text-lg">
+                Lótus
+              </span>
+            </Link>
 
-          <div className="hidden items-center gap-2.5 md:flex">
-            <HankoMark size="sm" label="蓮" />
-            <span className="font-serif-editorial text-sm font-medium text-[#4A463F]">
-              Capítulo {chapter.number} · {chapter.title}
-            </span>
+            <span className="text-[#141416]/20 select-none">|</span>
+
+            <Link
+              href="/#sumario"
+              className="inline-flex items-center gap-1 text-xs font-medium text-[#4A463F] transition-colors hover:text-[#C82E36] sm:text-sm"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Sumário</span>
+            </Link>
           </div>
 
+          {/* Lado direito: Ferramentas de leitura organizadas e sem poluição */}
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Controles de Tamanho de Fonte */}
             <div className="flex items-center rounded-md border border-[#141416]/20 bg-[#FAF6EB]/60 p-0.5 text-xs text-[#141416]">
