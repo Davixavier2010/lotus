@@ -23,8 +23,27 @@ export function HomeClient() {
   const [authOpen, setAuthOpen] = useState(false);
   const [oracleOpen, setOracleOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [lastRead, setLastRead] = useState<{
+    slug: string;
+    number: number;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = window.localStorage.getItem('lotus_last_read');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.slug && parsed?.number && parsed?.title) {
+            setLastRead(parsed);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     if (!isSupabaseConfigured()) return;
     const supabase = createClient();
     if (!supabase) return;
@@ -45,6 +64,33 @@ export function HomeClient() {
           onOpenOracle={() => setOracleOpen(true)}
           userEmail={userEmail}
         />
+
+        {/* Faixa discreta de Retomar Leitura */}
+        {lastRead && (
+          <aside
+            aria-label="Continuar leitura anterior"
+            className="border-b border-[#141416]/10 bg-[#E2D0B0]/50 px-4 py-2.5 transition-colors sm:px-8"
+          >
+            <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 text-xs sm:text-sm">
+              <div className="flex min-w-0 items-center gap-2 text-[#4A463F]">
+                <BookOpen className="h-4 w-4 shrink-0 text-[#C82E36]" aria-hidden="true" />
+                <span className="truncate">
+                  Continuar leitura:{' '}
+                  <strong className="font-medium text-[#141416]">
+                    Capítulo {lastRead.number} — {lastRead.title}
+                  </strong>
+                </span>
+              </div>
+              <Link
+                href={`/capitulos/${lastRead.slug}`}
+                className="inline-flex shrink-0 items-center gap-1 font-medium text-[#C82E36] transition-colors hover:text-[#A82229] hover:underline"
+              >
+                <span>Retomar</span>
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            </div>
+          </aside>
+        )}
 
       <main>
         {/* 1. HERO (Primeira Dobra) */}

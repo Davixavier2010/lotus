@@ -127,6 +127,24 @@ export function ChapterReader({
     }
   }
 
+  // Registra silenciosamente no localStorage o último capítulo aberto e o progresso
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(
+        'lotus_last_read',
+        JSON.stringify({
+          slug: chapter.slug,
+          number: chapter.number,
+          title: chapter.title,
+          updatedAt: Date.now(),
+        })
+      );
+    } catch {
+      // ignore
+    }
+  }, [chapter.slug, chapter.number, chapter.title]);
+
   // Carrega progresso local e/ou do Supabase
   useEffect(() => {
     const localKey = `lotus_note_${chapter.slug}`;
