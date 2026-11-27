@@ -35,13 +35,15 @@ export function ChapterAudioPlayer({
   onActiveIndexChange,
 }: ChapterAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [voice, setVoice] = useState<'male' | 'female'>('male');
+  const [voice, setVoice] = useState<'male' | 'female' | 'author'>('male');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [rate, setRate] = useState<number>(1);
 
-  const voiceSuffix = voice === 'female' ? '-fem' : '';
+  const voiceSuffix =
+    voice === 'author' ? '-davi' : voice === 'female' ? '-fem' : '';
+
   const audioSrc =
     section === 'conto'
       ? `/audio/${chapterSlug}${voiceSuffix}.mp3`
@@ -145,7 +147,7 @@ export function ChapterAudioPlayer({
     }
   }
 
-  function handleVoiceSwitch(nextVoice: 'male' | 'female') {
+  function handleVoiceSwitch(nextVoice: 'male' | 'female' | 'author') {
     if (nextVoice === voice) return;
     const audio = audioRef.current;
     if (audio) {
@@ -157,6 +159,13 @@ export function ChapterAudioPlayer({
     onActiveIndexChange?.(null);
     setVoice(nextVoice);
   }
+
+  const voiceLabel =
+    voice === 'author'
+      ? 'Voz do Autor (Davi)'
+      : voice === 'female'
+        ? 'Voz Feminina'
+        : 'Voz Masculina';
 
   return (
     <div
@@ -175,8 +184,7 @@ export function ChapterAudioPlayer({
               {sectionLabel} (Audiobook)
             </p>
             <p className="text-xs text-[#4A463F]">
-              {voice === 'male' ? 'Voz Masculina' : 'Voz Feminina'} ·{' '}
-              {formatTime(currentTime)} / {formatTime(duration)}
+              {voiceLabel} · {formatTime(currentTime)} / {formatTime(duration)}
             </p>
           </div>
         </div>
@@ -269,6 +277,17 @@ export function ChapterAudioPlayer({
               }`}
             >
               Feminina
+            </button>
+            <button
+              type="button"
+              onClick={() => handleVoiceSwitch('author')}
+              className={`rounded px-2 py-1 font-medium transition-colors ${
+                voice === 'author'
+                  ? 'bg-[#C82E36] text-[#FAF6EB]'
+                  : 'text-[#C82E36] hover:bg-[#C82E36]/10'
+              }`}
+            >
+              Davi (Autor)
             </button>
           </div>
 

@@ -46,16 +46,18 @@ export function FullBookAudioProvider({
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [voice, setVoice] = useState<'male' | 'female'>('male');
+  const [voice, setVoice] = useState<'male' | 'female' | 'author'>('male');
   const [rate, setRate] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   const audioSrc =
-    voice === 'female'
-      ? '/audio/obra-completa-fem.mp3'
-      : '/audio/obra-completa.mp3';
+    voice === 'author'
+      ? '/audio/obra-completa-davi.mp3'
+      : voice === 'female'
+        ? '/audio/obra-completa-fem.mp3'
+        : '/audio/obra-completa.mp3';
 
   const startFullBook = useCallback(() => {
     setIsOpen(true);
@@ -103,7 +105,7 @@ export function FullBookAudioProvider({
     }
   }
 
-  function handleVoiceSwitch(nextVoice: 'male' | 'female') {
+  function handleVoiceSwitch(nextVoice: 'male' | 'female' | 'author') {
     if (nextVoice === voice) return;
     const audio = audioRef.current;
     const wasPlaying = audio ? !audio.paused : false;
@@ -280,6 +282,17 @@ export function FullBookAudioProvider({
                     }`}
                   >
                     Feminina
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleVoiceSwitch('author')}
+                    className={`rounded px-2 py-0.5 font-medium ${
+                      voice === 'author'
+                        ? 'bg-[#C82E36] text-[#FAF6EB]'
+                        : 'text-[#C82E36] hover:bg-[#C82E36]/10'
+                    }`}
+                  >
+                    Davi (Autor)
                   </button>
                 </div>
 
