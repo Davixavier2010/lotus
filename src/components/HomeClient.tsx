@@ -90,55 +90,20 @@ export function HomeClient() {
               </div>
             </motion.div>
 
-            {/* Ilustração Original da Capa + Ledger Editorial */}
+            {/* Ilustração Original da Capa */}
             <motion.div
               initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-6 lg:col-span-5"
+              className="flex justify-center lg:col-span-5"
             >
-              <div className="mx-auto max-w-[240px] sm:max-w-[280px]">
+              <div className="mx-auto max-w-[280px] sm:max-w-[340px]">
                 <img
                   src="/ilustracoes/lotus-capa.jpg"
                   alt="Ilustração em aquarela e nanquim da flor de lótus com o kanji 蓮"
                   className="washi-plate h-auto w-full select-none mix-blend-multiply"
                 />
               </div>
-
-              <aside
-                aria-label="Índice rápido da edição"
-                className="border-t border-[#141416]/20 pt-5"
-              >
-                <div className="flex items-baseline justify-between pb-3">
-                  <span className="text-xs font-medium text-[#4A463F]">
-                    Edição de leitura aberta
-                  </span>
-                  <span className="font-jp-seal text-sm text-[#C82E36]">終わり</span>
-                </div>
-
-                <ul className="divide-y divide-[#141416]/12 border-y border-[#141416]/12">
-                  {CHAPTERS.map((chapter) => (
-                    <li key={chapter.slug}>
-                      <Link
-                        href={`/capitulos/${chapter.slug}`}
-                        className="group flex items-baseline justify-between gap-4 py-3 transition-colors hover:text-[#C82E36]"
-                      >
-                        <div>
-                          <span className="text-xs font-medium text-[#4A463F] group-hover:text-[#C82E36]">
-                            Capítulo {chapter.number}
-                          </span>
-                          <p className="font-serif-editorial text-base font-medium text-[#000000] group-hover:text-[#C82E36]">
-                            {chapter.title}
-                          </p>
-                        </div>
-                        <span className="shrink-0 text-xs text-[#4A463F]">
-                          {chapter.pagesLabel}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </aside>
             </motion.div>
           </div>
         </section>
@@ -165,64 +130,6 @@ export function HomeClient() {
             >
               {BOOK_PREFACE.endingSymbol}
             </p>
-          </div>
-        </section>
-
-        {/* 3. COMO FUNCIONA A LEITURA */}
-        <section
-          id="como-funciona"
-          className="border-t border-[#141416]/12 py-20 sm:py-24"
-        >
-          <div className="mx-auto max-w-6xl px-5 sm:px-8">
-            <div className="max-w-2xl">
-              <h2 className="font-serif-editorial text-3xl font-medium tracking-[-0.02em] text-[#000000] sm:text-4xl">
-                Como Funciona a Leitura
-              </h2>
-              <p className="mt-3 text-base leading-relaxed text-[#4A463F]">
-                Cada capítulo do livro segue um ritmo contemplativo em dois tempos:
-                primeiro a vivência da narrativa sem interrupções; depois, o mergulho
-                nos conceitos filosóficos aplicados ao presente.
-              </p>
-            </div>
-
-            <div className="mt-12 grid gap-8 md:grid-cols-2">
-              <div className="border-t-2 border-[#141416] pt-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#C82E36]">
-                    Primeiro Tempo
-                  </span>
-                  <span className="font-jp-seal text-sm text-[#4A463F]">
-                    終わり
-                  </span>
-                </div>
-                <h3 className="mt-3 font-serif-editorial text-2xl font-medium text-[#000000]">
-                  O Conto
-                </h3>
-                <p className="mt-3 max-w-[58ch] font-serif-editorial text-base leading-relaxed text-[#141416]/90">
-                  Você lê a parábola oriental por completo, em página limpa e
-                  respirada, até alcançar o símbolo tradicional japonês de
-                  encerramento (<span className="font-jp-seal">終わり</span>). Nenhuma
-                  explicação interrompe a imersão.
-                </p>
-              </div>
-
-              <div className="border-t-2 border-[#C82E36] pt-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#C82E36]">
-                    Segundo Tempo
-                  </span>
-                  <Sparkles className="h-4 w-4 text-[#C82E36]" aria-hidden="true" />
-                </div>
-                <h3 className="mt-3 font-serif-editorial text-2xl font-medium text-[#000000]">
-                  Reflexão de Lótus
-                </h3>
-                <p className="mt-3 max-w-[58ch] font-serif-editorial text-base leading-relaxed text-[#141416]/90">
-                  Ao concluir o conto, a seção filosófica se abre. Nela, cada
-                  conceito japonês ou chinês da história é desdobrado e traduzido
-                  para decisões cotidianas, relações e autoconhecimento.
-                </p>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -344,7 +251,65 @@ export function HomeClient() {
           </div>
         </section>
 
-        {/* 6. SOBRE O AUTOR */}
+        {/* 6. COMO FUNCIONA A LEITURA */}
+        <section
+          id="como-funciona"
+          className="border-t border-[#141416]/12 py-20 sm:py-24"
+        >
+          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+            <div className="max-w-2xl">
+              <h2 className="font-serif-editorial text-3xl font-medium tracking-[-0.02em] text-[#000000] sm:text-4xl">
+                Como Funciona a Leitura
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-[#4A463F]">
+                Cada capítulo do livro segue um ritmo contemplativo em dois tempos:
+                primeiro a vivência da narrativa sem interrupções; depois, o mergulho
+                nos conceitos filosóficos aplicados ao presente.
+              </p>
+            </div>
+
+            <div className="mt-12 grid gap-8 md:grid-cols-2">
+              <div className="border-t-2 border-[#141416] pt-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-[#C82E36]">
+                    Primeiro Tempo
+                  </span>
+                  <span className="font-jp-seal text-sm text-[#4A463F]">
+                    終わり
+                  </span>
+                </div>
+                <h3 className="mt-3 font-serif-editorial text-2xl font-medium text-[#000000]">
+                  O Conto
+                </h3>
+                <p className="mt-3 max-w-[58ch] font-serif-editorial text-base leading-relaxed text-[#141416]/90">
+                  Você lê a parábola oriental por completo, em página limpa e
+                  respirada, até alcançar o símbolo tradicional japonês de
+                  encerramento (<span className="font-jp-seal">終わり</span>). Nenhuma
+                  explicação interrompe a imersão.
+                </p>
+              </div>
+
+              <div className="border-t-2 border-[#C82E36] pt-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-[#C82E36]">
+                    Segundo Tempo
+                  </span>
+                  <Sparkles className="h-4 w-4 text-[#C82E36]" aria-hidden="true" />
+                </div>
+                <h3 className="mt-3 font-serif-editorial text-2xl font-medium text-[#000000]">
+                  Reflexão de Lótus
+                </h3>
+                <p className="mt-3 max-w-[58ch] font-serif-editorial text-base leading-relaxed text-[#141416]/90">
+                  Ao concluir o conto, a seção filosófica se abre. Nela, cada
+                  conceito japonês ou chinês da história é desdobrado e traduzido
+                  para decisões cotidianas, relações e autoconhecimento.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 7. SOBRE O AUTOR */}
         <section
           id="autor"
           className="border-t border-[#141416]/12 py-20 sm:py-24"

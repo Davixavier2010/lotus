@@ -35,9 +35,6 @@ export function SiteHeader({ onOpenAuth, onOpenOracle, userEmail }: SiteHeaderPr
           <a href="#prefacio" className="transition-colors hover:text-[#C82E36]">
             Prefácio
           </a>
-          <a href="#como-funciona" className="transition-colors hover:text-[#C82E36]">
-            Dinâmica
-          </a>
           <a href="#sumario" className="transition-colors hover:text-[#C82E36]">
             Sumário
           </a>
@@ -46,6 +43,9 @@ export function SiteHeader({ onOpenAuth, onOpenOracle, userEmail }: SiteHeaderPr
           </a>
           <a href="#pilares" className="transition-colors hover:text-[#C82E36]">
             Pilares
+          </a>
+          <a href="#como-funciona" className="transition-colors hover:text-[#C82E36]">
+            Dinâmica
           </a>
           <a href="#autor" className="transition-colors hover:text-[#C82E36]">
             Autor
