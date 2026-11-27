@@ -663,6 +663,14 @@ export function ChapterReader({
             </Link>
           )}
         </nav>
+
+        {/* Rodapé sutil de versão da edição digital */}
+        <div className="mt-12 flex items-center justify-between border-t border-[#141416]/10 pt-6 text-xs text-[#4A463F]">
+          <span>Lótus — Edição Digital do Autor</span>
+          <span className="rounded border border-[#141416]/15 bg-[#FAF6EB] px-2 py-0.5 text-[11px] font-medium text-[#141416]">
+            v1.0.0
+          </span>
+        </div>
       </main>
 
       <ReaderAuthModal

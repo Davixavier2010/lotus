@@ -413,12 +413,15 @@ export function HomeClient() {
 
       <footer className="border-t border-[#141416]/15 bg-[#F4EEDE] py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-5 text-sm text-[#4A463F] sm:flex-row sm:items-center sm:px-8">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <HankoMark size="sm" label="蓮" />
             <span className="font-serif-editorial text-base text-[#141416]">
               Lótus
             </span>
             <span>· Contos orientais sob uma ótica intrapessoal</span>
+            <span className="rounded-full border border-[#141416]/20 bg-[#EDE0C8] px-2 py-0.5 text-[11px] font-medium text-[#141416]">
+              v1.0.0
+            </span>
           </div>
           <div className="flex items-center gap-4">
             <Link
