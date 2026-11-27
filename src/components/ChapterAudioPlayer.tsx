@@ -249,17 +249,17 @@ export function ChapterAudioPlayer({
           className="h-1.5 w-full cursor-pointer accent-[#C82E36] sm:max-w-[210px]"
         />
 
-        <div className="flex flex-wrap items-center gap-4 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <div
-            className="flex items-center gap-1"
+            className="flex flex-wrap items-center gap-1"
             role="group"
             aria-label="Escolher voz"
           >
-            <span className="mr-1 text-[#4A463F]">Voz:</span>
+            <span className="mr-0.5 text-[#4A463F]">Voz:</span>
             <button
               type="button"
               onClick={() => handleVoiceSwitch('male')}
-              className={`rounded px-2 py-1 font-medium transition-colors ${
+              className={`rounded px-1.5 py-0.5 font-medium transition-colors sm:px-2 sm:py-1 ${
                 voice === 'male'
                   ? 'bg-[#141416] text-[#F4EEDE]'
                   : 'text-[#4A463F] hover:text-[#141416]'
@@ -270,7 +270,7 @@ export function ChapterAudioPlayer({
             <button
               type="button"
               onClick={() => handleVoiceSwitch('female')}
-              className={`rounded px-2 py-1 font-medium transition-colors ${
+              className={`rounded px-1.5 py-0.5 font-medium transition-colors sm:px-2 sm:py-1 ${
                 voice === 'female'
                   ? 'bg-[#141416] text-[#F4EEDE]'
                   : 'text-[#4A463F] hover:text-[#141416]'
@@ -281,7 +281,7 @@ export function ChapterAudioPlayer({
             <button
               type="button"
               onClick={() => handleVoiceSwitch('author')}
-              className={`rounded px-2 py-1 font-medium transition-colors ${
+              className={`rounded px-1.5 py-0.5 font-medium transition-colors sm:px-2 sm:py-1 ${
                 voice === 'author'
                   ? 'bg-[#C82E36] text-[#FAF6EB]'
                   : 'text-[#C82E36] hover:bg-[#C82E36]/10'
@@ -296,13 +296,13 @@ export function ChapterAudioPlayer({
             role="group"
             aria-label="Velocidade da narração"
           >
-            <span className="mr-1 text-[#4A463F]">Ritmo:</span>
+            <span className="mr-0.5 text-[#4A463F]">Ritmo:</span>
             {SPEEDS.map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => handleSpeedChange(s)}
-                className={`rounded px-2 py-1 font-medium transition-colors ${
+                className={`rounded px-1.5 py-0.5 font-medium transition-colors sm:px-2 sm:py-1 ${
                   rate === s
                     ? 'bg-[#141416] text-[#F4EEDE]'
                     : 'text-[#4A463F] hover:text-[#141416]'

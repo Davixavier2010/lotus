@@ -222,23 +222,24 @@ export function ChapterReader({
           immersiveMode ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
         }`}
       >
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-3 py-3 sm:px-8 sm:py-4">
           <Link
             href="/#sumario"
-            className="inline-flex items-center gap-2 text-sm font-medium text-[#141416] transition-colors hover:text-[#C82E36]"
+            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-[#141416] transition-colors hover:text-[#C82E36] sm:text-sm"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            <span>Voltar ao Sumário</span>
+            <span className="hidden xs:inline sm:inline">Voltar ao Sumário</span>
+            <span className="xs:hidden sm:hidden">Sumário</span>
           </Link>
 
-          <div className="hidden items-center gap-2.5 sm:flex">
+          <div className="hidden items-center gap-2.5 md:flex">
             <HankoMark size="sm" label="蓮" />
             <span className="font-serif-editorial text-sm font-medium text-[#4A463F]">
               Capítulo {chapter.number} · {chapter.title}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Controles de Tamanho de Fonte */}
             <div className="flex items-center rounded-md border border-[#141416]/20 bg-[#FAF6EB]/60 p-0.5 text-xs text-[#141416]">
               <button
@@ -284,7 +285,7 @@ export function ChapterReader({
               type="button"
               onClick={handleShare}
               aria-label="Compartilhar capítulo"
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 px-2.5 py-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
+              className="inline-flex items-center gap-1 rounded-md border border-[#141416]/20 p-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36] sm:px-2.5 sm:py-1.5"
               title="Compartilhar capítulo ou copiar link"
             >
               {copiedShare ? (
@@ -305,7 +306,7 @@ export function ChapterReader({
               type="button"
               onClick={() => setImmersiveMode(!immersiveMode)}
               aria-label={immersiveMode ? 'Sair do Modo Imersivo' : 'Entrar no Modo Imersivo'}
-              className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center gap-1 rounded-md border p-1.5 text-xs font-medium transition-colors sm:px-2.5 sm:py-1.5 ${
                 immersiveMode
                   ? 'border-[#C82E36] bg-[#C82E36] text-[#FAF6EB]'
                   : 'border-[#141416]/20 text-[#141416] hover:border-[#C82E36] hover:text-[#C82E36]'
@@ -326,13 +327,17 @@ export function ChapterReader({
             </button>
 
             <ThemeToggle />
+
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 px-3 py-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
+              aria-label="Área do Leitor"
+              className="inline-flex items-center gap-1 rounded-md border border-[#141416]/20 p-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36] sm:px-3 sm:py-1.5"
             >
               <User className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>{userEmail ? 'Leitor conectado' : 'Área do Leitor'}</span>
+              <span className="hidden sm:inline">
+                {userEmail ? 'Leitor conectado' : 'Área do Leitor'}
+              </span>
             </button>
           </div>
         </div>
