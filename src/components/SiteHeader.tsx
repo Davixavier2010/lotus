@@ -38,6 +38,9 @@ export function SiteHeader({ onOpenAuth, onOpenOracle, userEmail }: SiteHeaderPr
           <a href="#como-funciona" className="transition-colors hover:text-[#C82E36]">
             Dinâmica
           </a>
+          <a href="#bussola" className="transition-colors hover:text-[#C82E36]">
+            Bússola
+          </a>
           <a href="#sumario" className="transition-colors hover:text-[#C82E36]">
             Sumário
           </a>

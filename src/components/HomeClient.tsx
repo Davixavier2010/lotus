@@ -10,6 +10,7 @@ import { HankoMark } from './HankoMark';
 import { BookIntro } from './BookIntro';
 import { PetalButtonLink } from './PetalButtonLink';
 import { PillarsMap } from './PillarsMap';
+import { BussolaIntrapessoal } from './BussolaIntrapessoal';
 import { WaitlistForm } from './WaitlistForm';
 import { ReaderAuthModal } from './ReaderAuthModal';
 import { QuoteOracleModal } from './QuoteOracleModal';
@@ -224,6 +225,9 @@ export function HomeClient() {
             </div>
           </div>
         </section>
+
+        {/* 3. BÚSSOLA INTRAPESSOAL */}
+        <BussolaIntrapessoal />
 
         {/* 4. SUMÁRIO INTERATIVO */}
         <section
