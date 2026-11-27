@@ -12,6 +12,7 @@ import { PetalButtonLink } from './PetalButtonLink';
 import { PillarsMap } from './PillarsMap';
 import { WaitlistForm } from './WaitlistForm';
 import { ReaderAuthModal } from './ReaderAuthModal';
+import { QuoteOracleModal } from './QuoteOracleModal';
 import { useFullBookAudio } from './FullBookAudioContext';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
@@ -19,6 +20,7 @@ export function HomeClient() {
   const shouldReduceMotion = useReducedMotion();
   const { startFullBook } = useFullBookAudio();
   const [authOpen, setAuthOpen] = useState(false);
+  const [oracleOpen, setOracleOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,7 +39,11 @@ export function HomeClient() {
     <div className="washi-desk min-h-screen px-2.5 sm:px-6 lg:px-10">
       <BookIntro />
       <div className="washi-sheet mx-auto min-h-screen max-w-6xl text-[#141416]">
-        <SiteHeader onOpenAuth={() => setAuthOpen(true)} userEmail={userEmail} />
+        <SiteHeader
+          onOpenAuth={() => setAuthOpen(true)}
+          onOpenOracle={() => setOracleOpen(true)}
+          userEmail={userEmail}
+        />
 
       <main>
         {/* 1. HERO (Primeira Dobra) */}
@@ -431,6 +437,11 @@ export function HomeClient() {
         onClose={() => setAuthOpen(false)}
         userEmail={userEmail}
         onAuthChange={setUserEmail}
+      />
+
+      <QuoteOracleModal
+        isOpen={oracleOpen}
+        onClose={() => setOracleOpen(false)}
       />
       </div>
     </div>
