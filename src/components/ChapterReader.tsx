@@ -17,9 +17,11 @@ import {
   User,
 } from 'lucide-react';
 import type { ChapterData } from '@/data/lotus-content';
+import audioTimings from '@/data/audio-timings.json';
+import audioTimingsFem from '@/data/audio-timings-fem.json';
 import { HankoMark } from './HankoMark';
 import { ThemeToggle } from './ThemeToggle';
-import { ChapterAudioPlayer } from './ChapterAudioPlayer';
+import { ChapterAudioPlayer, type AudioSegment } from './ChapterAudioPlayer';
 import { ReaderAuthModal } from './ReaderAuthModal';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
@@ -38,7 +40,23 @@ export function ChapterReader({
   const { scrollYProgress } = useScroll();
 
   const [reflectionUnlocked, setReflectionUnlocked] = useState(false);
+  const [activeContoIdx, setActiveContoIdx] = useState<number | null>(null);
+  const [activeReflexaoIdx, setActiveReflexaoIdx] = useState<number | null>(null);
   const [personalNote, setPersonalNote] = useState('');
+
+  const chapterTimings = (
+    audioTimings as Record<
+      string,
+      { conto?: AudioSegment[]; reflexao?: AudioSegment[] }
+    >
+  )[chapter.slug];
+
+  const chapterTimingsFem = (
+    audioTimingsFem as Record<
+      string,
+      { conto?: AudioSegment[]; reflexao?: AudioSegment[] }
+    >
+  )[chapter.slug];
   const [noteStatus, setNoteStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
@@ -200,6 +218,10 @@ export function ChapterReader({
           <ChapterAudioPlayer
             chapterSlug={chapter.slug}
             chapterTitle={chapter.title}
+            section="conto"
+            segments={chapterTimings?.conto}
+            segmentsFem={chapterTimingsFem?.conto}
+            onActiveIndexChange={setActiveContoIdx}
           />
 
           {/* Ilustração de abertura do capítulo */}
@@ -218,7 +240,18 @@ export function ChapterReader({
 
           <div className="mt-7 max-w-[65ch] space-y-6 font-serif-editorial text-[1.18rem] leading-[1.9] text-[#141416]">
             {chapter.storyParagraphs.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
+              <p
+                key={index}
+                className={
+                  activeContoIdx === index
+                    ? 'rounded-r-md border-l-2 border-[#C82E36] bg-[#C82E36]/12 py-1.5 pl-4 text-[#000000] transition-all duration-300 dark:bg-[#D94149]/25 dark:text-[#FAF6EB]'
+                    : activeContoIdx !== null
+                      ? 'opacity-65 transition-all duration-300'
+                      : 'transition-all duration-300'
+                }
+              >
+                {paragraph}
+              </p>
             ))}
           </div>
 
@@ -301,13 +334,29 @@ export function ChapterReader({
                 </div>
               </div>
 
+              <ChapterAudioPlayer
+                chapterSlug={chapter.slug}
+                chapterTitle={chapter.title}
+                section="reflexao"
+                segments={chapterTimings?.reflexao}
+                segmentsFem={chapterTimingsFem?.reflexao}
+                onActiveIndexChange={setActiveReflexaoIdx}
+              />
+
               <div className="mt-8 max-w-[65ch] space-y-6 font-serif-editorial text-[1.125rem] leading-[1.85] text-[#141416]">
                 {chapter.reflectionBlocks.map((block, index) => {
+                  const isActive = activeReflexaoIdx === index;
+                  const isDimmed = activeReflexaoIdx !== null && !isActive;
+
                   if (block.type === 'concept' && block.conceptName) {
                     return (
                       <div
                         key={index}
-                        className="rounded-xl border border-[#141416]/15 bg-[#FAF6EB] p-5 sm:p-6"
+                        className={`rounded-xl border p-5 transition-all duration-300 sm:p-6 ${
+                          isActive
+                            ? 'border-[#C82E36] bg-[#C82E36]/12 text-[#000000] dark:bg-[#D94149]/25 dark:text-[#FAF6EB]'
+                            : `border-[#141416]/15 bg-[#FAF6EB] ${isDimmed ? 'opacity-65' : ''}`
+                        }`}
                       >
                         <p>
                           <strong className="font-semibold text-[#C82E36]">
@@ -318,7 +367,20 @@ export function ChapterReader({
                       </div>
                     );
                   }
-                  return <p key={index}>{block.text}</p>;
+                  return (
+                    <p
+                      key={index}
+                      className={
+                        isActive
+                          ? 'rounded-r-md border-l-2 border-[#C82E36] bg-[#C82E36]/12 py-1.5 pl-4 text-[#000000] transition-all duration-300 dark:bg-[#D94149]/25 dark:text-[#FAF6EB]'
+                          : isDimmed
+                            ? 'opacity-65 transition-all duration-300'
+                            : 'transition-all duration-300'
+                      }
+                    >
+                      {block.text}
+                    </p>
+                  );
                 })}
               </div>
 

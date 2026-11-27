@@ -3,9 +3,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { Headphones, Pause, Play, RotateCcw, RotateCw } from 'lucide-react';
 
+export interface AudioSegment {
+  start: number;
+  end: number;
+}
+
 interface ChapterAudioPlayerProps {
   chapterSlug: string;
   chapterTitle: string;
+  section: 'conto' | 'reflexao';
+  segments?: AudioSegment[];
+  segmentsFem?: AudioSegment[];
+  onActiveIndexChange?: (index: number | null) => void;
 }
 
 const SPEEDS = [0.85, 1, 1.15] as const;
@@ -20,14 +29,29 @@ function formatTime(seconds: number): string {
 export function ChapterAudioPlayer({
   chapterSlug,
   chapterTitle,
+  section,
+  segments = [],
+  segmentsFem = [],
+  onActiveIndexChange,
 }: ChapterAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [voice, setVoice] = useState<'male' | 'female'>('male');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [rate, setRate] = useState<number>(1);
 
-  const audioSrc = `/audio/${chapterSlug}.mp3`;
+  const voiceSuffix = voice === 'female' ? '-fem' : '';
+  const audioSrc =
+    section === 'conto'
+      ? `/audio/${chapterSlug}${voiceSuffix}.mp3`
+      : `/audio/${chapterSlug}-reflexao${voiceSuffix}.mp3`;
+
+  const activeSegments =
+    voice === 'female' && segmentsFem.length > 0 ? segmentsFem : segments;
+
+  const sectionLabel =
+    section === 'conto' ? 'Ouvir o Conto' : 'Ouvir a Reflexão de Lótus';
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -35,11 +59,40 @@ export function ChapterAudioPlayer({
 
     audio.playbackRate = rate;
 
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const updateHighlight = (t: number, totalDur: number) => {
+      if (!onActiveIndexChange || activeSegments.length === 0) return;
+      if (audio.paused) {
+        onActiveIndexChange(null);
+        return;
+      }
+      const expectedTotal =
+        activeSegments[activeSegments.length - 1]?.end || totalDur || 1;
+      const ratio = totalDur > 0 ? expectedTotal / totalDur : 1;
+      const scaledTime = t * ratio;
+
+      const idx = activeSegments.findIndex(
+        (seg) => scaledTime >= seg.start && scaledTime < seg.end
+      );
+      onActiveIndexChange(idx !== -1 ? idx : null);
+    };
+
+    const onTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      updateHighlight(audio.currentTime, audio.duration || 0);
+    };
     const onLoadedMetadata = () => setDuration(audio.duration || 0);
-    const onEnded = () => setIsPlaying(false);
-    const onPause = () => setIsPlaying(false);
-    const onPlay = () => setIsPlaying(true);
+    const onEnded = () => {
+      setIsPlaying(false);
+      onActiveIndexChange?.(null);
+    };
+    const onPause = () => {
+      setIsPlaying(false);
+      onActiveIndexChange?.(null);
+    };
+    const onPlay = () => {
+      setIsPlaying(true);
+      updateHighlight(audio.currentTime, audio.duration || 0);
+    };
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
@@ -54,8 +107,9 @@ export function ChapterAudioPlayer({
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('play', onPlay);
       audio.pause();
+      onActiveIndexChange?.(null);
     };
-  }, [chapterSlug, rate]);
+  }, [chapterSlug, section, voice, rate, activeSegments, onActiveIndexChange]);
 
   function togglePlay() {
     const audio = audioRef.current;
@@ -91,9 +145,22 @@ export function ChapterAudioPlayer({
     }
   }
 
+  function handleVoiceSwitch(nextVoice: 'male' | 'female') {
+    if (nextVoice === voice) return;
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    onActiveIndexChange?.(null);
+    setVoice(nextVoice);
+  }
+
   return (
     <div
-      aria-label={`Audiobook de ${chapterTitle}`}
+      aria-label={`${sectionLabel} — ${chapterTitle}`}
       className="my-7 rounded-xl border border-[#141416]/15 bg-[#FAF6EB] p-4 sm:p-5"
     >
       <audio ref={audioRef} src={audioSrc} preload="metadata" />
@@ -105,10 +172,11 @@ export function ChapterAudioPlayer({
           </span>
           <div>
             <p className="text-sm font-medium text-[#000000]">
-              Ouvir o Conto (Audiobook)
+              {sectionLabel} (Audiobook)
             </p>
             <p className="text-xs text-[#4A463F]">
-              Narração neural · {formatTime(currentTime)} / {formatTime(duration)}
+              {voice === 'male' ? 'Voz Masculina' : 'Voz Feminina'} ·{' '}
+              {formatTime(currentTime)} / {formatTime(duration)}
             </p>
           </div>
         </div>
@@ -137,7 +205,13 @@ export function ChapterAudioPlayer({
             ) : (
               <>
                 <Play className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>{currentTime > 0 ? 'Continuar' : 'Ouvir conto'}</span>
+                <span>
+                  {currentTime > 0
+                    ? 'Continuar'
+                    : section === 'conto'
+                      ? 'Ouvir conto'
+                      : 'Ouvir reflexão'}
+                </span>
               </>
             )}
           </button>
@@ -154,7 +228,7 @@ export function ChapterAudioPlayer({
         </div>
       </div>
 
-      {/* Barra de progresso e ritmo */}
+      {/* Barra de progresso, seletor de voz e ritmo */}
       <div className="mt-4 flex flex-col gap-3 border-t border-[#141416]/12 pt-3 sm:flex-row sm:items-center sm:justify-between">
         <input
           type="range"
@@ -164,25 +238,61 @@ export function ChapterAudioPlayer({
           value={currentTime}
           onChange={handleSeek}
           aria-label="Progresso do áudio"
-          className="h-1.5 w-full cursor-pointer accent-[#C82E36] sm:max-w-xs"
+          className="h-1.5 w-full cursor-pointer accent-[#C82E36] sm:max-w-[210px]"
         />
 
-        <div className="flex items-center gap-1.5 text-xs" role="group" aria-label="Velocidade da narração">
-          <span className="text-[#4A463F]">Ritmo:</span>
-          {SPEEDS.map((s) => (
+        <div className="flex flex-wrap items-center gap-4 text-xs">
+          <div
+            className="flex items-center gap-1"
+            role="group"
+            aria-label="Escolher voz"
+          >
+            <span className="mr-1 text-[#4A463F]">Voz:</span>
             <button
-              key={s}
               type="button"
-              onClick={() => handleSpeedChange(s)}
+              onClick={() => handleVoiceSwitch('male')}
               className={`rounded px-2 py-1 font-medium transition-colors ${
-                rate === s
+                voice === 'male'
                   ? 'bg-[#141416] text-[#F4EEDE]'
                   : 'text-[#4A463F] hover:text-[#141416]'
               }`}
             >
-              {s}x
+              Masculina
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => handleVoiceSwitch('female')}
+              className={`rounded px-2 py-1 font-medium transition-colors ${
+                voice === 'female'
+                  ? 'bg-[#141416] text-[#F4EEDE]'
+                  : 'text-[#4A463F] hover:text-[#141416]'
+              }`}
+            >
+              Feminina
+            </button>
+          </div>
+
+          <div
+            className="flex items-center gap-1"
+            role="group"
+            aria-label="Velocidade da narração"
+          >
+            <span className="mr-1 text-[#4A463F]">Ritmo:</span>
+            {SPEEDS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => handleSpeedChange(s)}
+                className={`rounded px-2 py-1 font-medium transition-colors ${
+                  rate === s
+                    ? 'bg-[#141416] text-[#F4EEDE]'
+                    : 'text-[#4A463F] hover:text-[#141416]'
+                }`}
+              >
+                {s}x
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
