@@ -13,7 +13,11 @@ import {
   ArrowRight,
   BookOpenCheck,
   Check,
+  Copy,
+  Headphones,
   Save,
+  Share2,
+  Type,
   User,
 } from 'lucide-react';
 import type { ChapterData } from '@/data/lotus-content';
@@ -23,6 +27,7 @@ import { HankoMark } from './HankoMark';
 import { ThemeToggle } from './ThemeToggle';
 import { ChapterAudioPlayer, type AudioSegment } from './ChapterAudioPlayer';
 import { ReaderAuthModal } from './ReaderAuthModal';
+import { useFullBookAudio } from './FullBookAudioContext';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 interface ChapterReaderProps {
@@ -38,6 +43,7 @@ export function ChapterReader({
 }: ChapterReaderProps) {
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
+  const { startFullBook } = useFullBookAudio();
 
   const [reflectionUnlocked, setReflectionUnlocked] = useState(false);
   const [activeContoIdx, setActiveContoIdx] = useState<number | null>(null);
@@ -60,13 +66,62 @@ export function ChapterReader({
   const [noteStatus, setNoteStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
+  const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
+  const [copiedShare, setCopiedShare] = useState(false);
 
   // Se o usuário chegou via link direto #reflexao (ex: Mapa de Pilares), abre a reflexão
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash === '#reflexao') {
       setReflectionUnlocked(true);
     }
+    const savedSize = typeof window !== 'undefined' ? (window.localStorage.getItem('lotus_fontsize') as 'sm' | 'base' | 'lg' | null) : null;
+    if (savedSize && ['sm', 'base', 'lg'].includes(savedSize)) {
+      setFontSize(savedSize);
+    }
   }, []);
+
+  function handleFontSizeChange(size: 'sm' | 'base' | 'lg') {
+    setFontSize(size);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('lotus_fontsize', size);
+    }
+  }
+
+  const fontSizeClasses = {
+    sm: 'text-[1.05rem] leading-[1.8]',
+    base: 'text-[1.18rem] leading-[1.9]',
+    lg: 'text-[1.32rem] leading-[2.0]',
+  }[fontSize];
+
+  const reflectionFontSizeClasses = {
+    sm: 'text-[1.0rem] leading-[1.75]',
+    base: 'text-[1.125rem] leading-[1.85]',
+    lg: 'text-[1.26rem] leading-[1.95]',
+  }[fontSize];
+
+  async function handleShare() {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const shareData = {
+      title: `Lótus — Capítulo ${chapter.number}: ${chapter.title}`,
+      text: `Leia o Capítulo ${chapter.number} (${chapter.title}) do livro Lótus por Davi Xavier.`,
+      url,
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // Fallback para clipboard
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      setCopiedShare(true);
+      setTimeout(() => setCopiedShare(false), 2500);
+    }
+  }
 
   // Carrega progresso local e/ou do Supabase
   useEffect(() => {
@@ -172,7 +227,68 @@ export function ChapterReader({
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Controles de Tamanho de Fonte */}
+            <div className="flex items-center rounded-md border border-[#141416]/20 bg-[#FAF6EB]/60 p-0.5 text-xs text-[#141416]">
+              <button
+                type="button"
+                onClick={() => handleFontSizeChange('sm')}
+                aria-label="Tamanho de fonte padrão"
+                className={`rounded px-1.5 py-0.5 font-medium transition-colors ${
+                  fontSize === 'sm'
+                    ? 'bg-[#141416] text-[#FAF6EB]'
+                    : 'text-[#4A463F] hover:text-[#141416]'
+                }`}
+              >
+                A-
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFontSizeChange('base')}
+                aria-label="Tamanho de fonte médio"
+                className={`rounded px-1.5 py-0.5 font-medium transition-colors ${
+                  fontSize === 'base'
+                    ? 'bg-[#141416] text-[#FAF6EB]'
+                    : 'text-[#4A463F] hover:text-[#141416]'
+                }`}
+              >
+                A
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFontSizeChange('lg')}
+                aria-label="Tamanho de fonte grande"
+                className={`rounded px-1.5 py-0.5 font-medium transition-colors ${
+                  fontSize === 'lg'
+                    ? 'bg-[#141416] text-[#FAF6EB]'
+                    : 'text-[#4A463F] hover:text-[#141416]'
+                }`}
+              >
+                A+
+              </button>
+            </div>
+
+            {/* Botão de Compartilhar */}
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="Compartilhar capítulo"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 px-2.5 py-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
+              title="Compartilhar capítulo ou copiar link"
+            >
+              {copiedShare ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-[#C82E36]" aria-hidden="true" />
+                  <span className="hidden sm:inline text-[#C82E36]">Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="hidden sm:inline">Compartilhar</span>
+                </>
+              )}
+            </button>
+
             <ThemeToggle />
             <button
               type="button"
@@ -208,12 +324,22 @@ export function ChapterReader({
 
         {/* BLOCO 1 — O CONTO */}
         <section aria-labelledby="conto-heading" className="pt-12">
-          <h2
-            id="conto-heading"
-            className="text-sm font-semibold uppercase tracking-wider text-[#C82E36]"
-          >
-            O Conto
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2
+              id="conto-heading"
+              className="text-sm font-semibold uppercase tracking-wider text-[#C82E36]"
+            >
+              O Conto
+            </h2>
+            <button
+              type="button"
+              onClick={() => startFullBook(chapter.number)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#141416]/20 px-3 py-1.5 text-xs font-medium text-[#141416] transition-colors hover:border-[#C82E36] hover:text-[#C82E36]"
+            >
+              <Headphones className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Ouvir obra inteira</span>
+            </button>
+          </div>
 
           <ChapterAudioPlayer
             chapterSlug={chapter.slug}
@@ -238,7 +364,7 @@ export function ChapterReader({
             />
           </motion.figure>
 
-          <div className="mt-7 max-w-[65ch] space-y-6 font-serif-editorial text-[1.18rem] leading-[1.9] text-[#141416]">
+          <div className={`mt-7 max-w-[65ch] space-y-6 font-serif-editorial ${fontSizeClasses} text-[#141416]`}>
             {chapter.storyParagraphs.map((paragraph, index) => (
               <p
                 key={index}
@@ -343,7 +469,7 @@ export function ChapterReader({
                 onActiveIndexChange={setActiveReflexaoIdx}
               />
 
-              <div className="mt-8 max-w-[65ch] space-y-6 font-serif-editorial text-[1.125rem] leading-[1.85] text-[#141416]">
+              <div className={`mt-8 max-w-[65ch] space-y-6 font-serif-editorial ${reflectionFontSizeClasses} text-[#141416]`}>
                 {chapter.reflectionBlocks.map((block, index) => {
                   const isActive = activeReflexaoIdx === index;
                   const isDimmed = activeReflexaoIdx !== null && !isActive;

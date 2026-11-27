@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Spectral, Hanken_Grotesk, Noto_Serif_JP } from 'next/font/google';
 import { getSiteUrl } from '@/lib/site-url';
+import { FullBookAudioProvider } from '@/components/FullBookAudioContext';
 import './globals.css';
 
 const spectral = Spectral({
@@ -41,6 +42,13 @@ export const metadata: Metadata = {
     'bushido',
     'autoconhecimento',
   ],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+  },
   alternates: {
     canonical: '/',
   },
@@ -85,8 +93,8 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${spectral.variable} ${hankenGrotesk.variable} ${notoSerifJp.variable}`}
     >
-      <body className="min-h-screen bg-[#F4EEDE] text-[#141416] antialiased">
-        {children}
+      <body className="min-h-screen bg-[var(--washi-bg)] text-[#141416] antialiased">
+        <FullBookAudioProvider>{children}</FullBookAudioProvider>
       </body>
     </html>
   );

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Fundo papel washi creme quente -->
+  <rect width="64" height="64" rx="14" fill="#EDE0C8" />
+  <!-- Moldura dupla do carimbo Hanko tradicional japonês -->
+  <rect x="7" y="7" width="50" height="50" rx="9" fill="none" stroke="#C82E36" stroke-width="3" />
+  <rect x="11" y="11" width="42" height="42" rx="6" fill="#C82E36" opacity="0.08" />
+  <!-- Kanji 蓮 (Lótus) centralizado com caligrafia em relevo vermelho Hanko -->
+  <text
+    x="32"
+    y="44"
+    text-anchor="middle"
+    font-family="'Noto Serif JP', 'Yu Mincho', 'Hiragino Mincho ProN', serif"
+    font-size="34"
+    font-weight="bold"
+    fill="#C82E36"
+  >蓮</text>
+</svg>

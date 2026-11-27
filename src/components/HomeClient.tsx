@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, Headphones, Sparkles } from 'lucide-react';
 import { BOOK_PREFACE, CHAPTERS } from '@/data/lotus-content';
 import { SiteHeader } from './SiteHeader';
 import { HankoMark } from './HankoMark';
@@ -12,10 +12,12 @@ import { PetalButtonLink } from './PetalButtonLink';
 import { PillarsMap } from './PillarsMap';
 import { WaitlistForm } from './WaitlistForm';
 import { ReaderAuthModal } from './ReaderAuthModal';
+import { useFullBookAudio } from './FullBookAudioContext';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 export function HomeClient() {
   const shouldReduceMotion = useReducedMotion();
+  const { startFullBook } = useFullBookAudio();
   const [authOpen, setAuthOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -137,7 +139,7 @@ export function HomeClient() {
         {/* 2. SOBRE A OBRA (Prefácio) */}
         <section
           id="prefacio"
-          className="border-t border-[#141416]/12 bg-[#FAF6EB] py-20 sm:py-24"
+          className="border-t border-[#141416]/12 py-20 sm:py-24"
         >
           <div className="mx-auto max-w-4xl px-5 sm:px-8">
             <h2 className="font-serif-editorial text-3xl font-medium tracking-[-0.02em] text-[#000000] sm:text-4xl">
@@ -220,7 +222,7 @@ export function HomeClient() {
         {/* 4. SUMÁRIO INTERATIVO */}
         <section
           id="sumario"
-          className="border-t border-[#141416]/12 bg-[#FAF6EB] py-20 sm:py-24"
+          className="border-t border-[#141416]/12 py-20 sm:py-24"
         >
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -232,9 +234,19 @@ export function HomeClient() {
                   Escolha um capítulo para iniciar a leitura integral.
                 </p>
               </div>
-              <span className="text-xs font-medium text-[#4A463F]">
-                3 capítulos disponíveis
-              </span>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => startFullBook(1)}
+                  className="inline-flex items-center gap-2 rounded-md border border-[#C82E36] bg-[#F4EEDE] px-4 py-2 text-xs font-medium text-[#C82E36] transition-colors hover:bg-[#C82E36] hover:text-[#FAF6EB]"
+                >
+                  <Headphones className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Ouvir obra inteira</span>
+                </button>
+                <span className="text-xs font-medium text-[#4A463F]">
+                  3 capítulos disponíveis
+                </span>
+              </div>
             </div>
 
             <div className="mt-10 divide-y divide-[#141416]/15 border-y border-[#141416]/15">
@@ -321,7 +333,7 @@ export function HomeClient() {
         {/* 6. SOBRE O AUTOR */}
         <section
           id="autor"
-          className="border-t border-[#141416]/12 bg-[#FAF6EB] py-20 sm:py-24"
+          className="border-t border-[#141416]/12 py-20 sm:py-24"
         >
           <div className="mx-auto max-w-4xl px-5 sm:px-8">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -368,7 +380,7 @@ export function HomeClient() {
         {/* 7. LISTA DE ACOMPANHAMENTO */}
         <section
           id="acompanhamento"
-          className="border-t border-[#141416]/12 bg-[#EAE2CE]/60 py-20 sm:py-24"
+          className="border-t border-[#141416]/12 py-20 sm:py-24"
         >
           <div className="mx-auto max-w-4xl px-5 sm:px-8">
             <div className="max-w-2xl">

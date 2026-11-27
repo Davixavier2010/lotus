@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --washi-desk: #E3DAC3;
-  --washi-bg: #F4EEDE;
-  --washi-surface: #FAF6EB;
-  --washi-recessed: #EAE2CE;
+  --washi-desk: #CBB389;
+  --washi-bg: #EDE0C8;
+  --washi-surface: #E2D0B0;
+  --washi-recessed: #D9C5A0;
   --ink-primary: #141416;
   --ink-strong: #000000;
   --ink-muted: #4A463F;
@@ -125,12 +125,12 @@
 
 .washi-sheet::before {
   left: -9px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M10 0 L6 5 L8 11 L3 17 L7 23 L4 30 L8 36 L3 43 L7 50 L5 57 L10 64 Z' fill='%23F4EEDE'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M10 0 L6 5 L8 11 L3 17 L7 23 L4 30 L8 36 L3 43 L7 50 L5 57 L10 64 Z' fill='%23EDE0C8'/%3E%3C/svg%3E");
 }
 
 .washi-sheet::after {
   right: -9px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M0 0 L5 6 L2 13 L7 19 L3 26 L6 33 L2 40 L7 47 L4 55 L0 64 Z' fill='%23F4EEDE'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M0 0 L5 6 L2 13 L7 19 L3 26 L6 33 L2 40 L7 47 L4 55 L0 64 Z' fill='%23EDE0C8'/%3E%3C/svg%3E");
 }
 
 .dark .washi-sheet::before {
@@ -139,6 +139,24 @@
 
 .dark .washi-sheet::after {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M0 0 L5 6 L2 13 L7 19 L3 26 L6 33 L2 40 L7 47 L4 55 L0 64 Z' fill='%23161618'/%3E%3C/svg%3E");
+}
+
+/* Mapeamento da paleta clara (branco + pergaminho caramelo claro) */
+html:not(.dark) .bg-\[\#F4EEDE\],
+html:not(.dark) .bg-\[\#F4EEDE\]\/60,
+html:not(.dark) .bg-\[\#F4EEDE\]\/70,
+html:not(.dark) .bg-\[\#F4EEDE\]\/92,
+html:not(.dark) .bg-\[\#F4EEDE\]\/94 {
+  background-color: var(--washi-bg) !important;
+}
+
+html:not(.dark) .bg-\[\#FAF6EB\],
+html:not(.dark) .bg-\[\#FAF6EB\]\/65 {
+  background-color: var(--washi-surface) !important;
+}
+
+html:not(.dark) .bg-\[\#EAE2CE\]\/60 {
+  background-color: var(--washi-recessed) !important;
 }
 
 /* Adaptação de utilitários de papel/tinta para modo escuro */
