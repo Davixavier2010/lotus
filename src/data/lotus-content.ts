@@ -31,6 +31,19 @@ export interface ChapterData {
   reflectionBlocks: ReflectionBlock[];
 }
 
+export function estimateReadingTime(chapter: ChapterData): { minutes: number; label: string; wordCount: number } {
+  const storyText = chapter.storyParagraphs.join(' ');
+  const reflectionText = chapter.reflectionBlocks.map((b) => b.text).join(' ');
+  const totalWords = (storyText + ' ' + reflectionText).trim().split(/\s+/).length;
+  // Média de leitura atenta em português: ~180 a 200 palavras por minuto
+  const minutes = Math.max(1, Math.round(totalWords / 190));
+  return {
+    minutes,
+    label: `~${minutes} min de leitura`,
+    wordCount: totalWords,
+  };
+}
+
 export const BOOK_PREFACE = {
   title: 'Prefácio',
   lead: 'Nem todos os grandes confrontos acontecem nos campos de batalha, mas sim dentro das nossas mentes.',

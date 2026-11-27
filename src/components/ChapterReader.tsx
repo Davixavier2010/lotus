@@ -13,14 +13,17 @@ import {
   ArrowRight,
   BookOpenCheck,
   Check,
+  Clock,
   Copy,
   Headphones,
+  Maximize2,
+  Minimize2,
   Save,
   Share2,
   Type,
   User,
 } from 'lucide-react';
-import type { ChapterData } from '@/data/lotus-content';
+import { estimateReadingTime, type ChapterData } from '@/data/lotus-content';
 import audioTimings from '@/data/audio-timings.json';
 import audioTimingsFem from '@/data/audio-timings-fem.json';
 import { HankoMark } from './HankoMark';
@@ -68,6 +71,7 @@ export function ChapterReader({
   const [authOpen, setAuthOpen] = useState(false);
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
   const [copiedShare, setCopiedShare] = useState(false);
+  const [immersiveMode, setImmersiveMode] = useState(false);
 
   // Se o usuário chegou via link direto #reflexao (ex: Mapa de Pilares), abre a reflexão
   useEffect(() => {
@@ -210,7 +214,11 @@ export function ChapterReader({
       />
 
       {/* Cabeçalho limpo de leitura */}
-      <header className="sticky top-0 z-40 border-b border-[#141416]/12 bg-[#F4EEDE]/94 backdrop-blur-sm">
+      <header
+        className={`sticky top-0 z-40 border-b border-[#141416]/12 bg-[#F4EEDE]/94 backdrop-blur-sm transition-all duration-300 ${
+          immersiveMode ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        }`}
+      >
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <Link
             href="/#sumario"
@@ -289,6 +297,31 @@ export function ChapterReader({
               )}
             </button>
 
+            {/* Botão Modo Imersivo */}
+            <button
+              type="button"
+              onClick={() => setImmersiveMode(!immersiveMode)}
+              aria-label={immersiveMode ? 'Sair do Modo Imersivo' : 'Entrar no Modo Imersivo'}
+              className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                immersiveMode
+                  ? 'border-[#C82E36] bg-[#C82E36] text-[#FAF6EB]'
+                  : 'border-[#141416]/20 text-[#141416] hover:border-[#C82E36] hover:text-[#C82E36]'
+              }`}
+              title={immersiveMode ? 'Sair do Modo Imersivo (Esc)' : 'Modo Imersivo (apenas a leitura)'}
+            >
+              {immersiveMode ? (
+                <>
+                  <Minimize2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="hidden sm:inline">Modo Padrão</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="hidden sm:inline">Imersivo</span>
+                </>
+              )}
+            </button>
+
             <ThemeToggle />
             <button
               type="button"
@@ -312,7 +345,14 @@ export function ChapterReader({
         >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-[#C82E36]">
             <span>Capítulo {chapter.number}</span>
-            <span className="text-[#4A463F]">{chapter.pagesLabel}</span>
+            <div className="flex items-center gap-3 text-[#4A463F]">
+              <span>{chapter.pagesLabel}</span>
+              <span>·</span>
+              <span className="inline-flex items-center gap-1 font-medium text-[#C82E36]">
+                <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                {estimateReadingTime(chapter).label}
+              </span>
+            </div>
           </div>
           <h1 className="mt-3 font-serif-editorial text-4xl font-medium tracking-[-0.02em] text-[#000000] sm:text-5xl">
             {chapter.title}
@@ -631,6 +671,28 @@ export function ChapterReader({
         userEmail={userEmail}
         onAuthChange={setUserEmail}
       />
+
+      {/* Botão flutuante minimalista de saída quando em Modo Imersivo */}
+      <AnimatePresence>
+        {immersiveMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-2"
+          >
+            <button
+              type="button"
+              onClick={() => setImmersiveMode(false)}
+              className="inline-flex items-center gap-2 rounded-full border border-[#141416]/20 bg-[#FAF6EB] px-4 py-2 text-xs font-medium text-[#141416] shadow-lg backdrop-blur transition-all hover:border-[#C82E36] hover:bg-[#C82E36] hover:text-[#FAF6EB]"
+              title="Voltar ao modo normal com cabeçalho"
+            >
+              <Minimize2 className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Sair do Imersivo</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       </div>
     </div>
   );

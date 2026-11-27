@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, BookOpen, Headphones, Sparkles } from 'lucide-react';
-import { BOOK_PREFACE, CHAPTERS } from '@/data/lotus-content';
+import { ArrowRight, BookOpen, Clock, Headphones, Sparkles } from 'lucide-react';
+import { BOOK_PREFACE, CHAPTERS, estimateReadingTime } from '@/data/lotus-content';
 import { SiteHeader } from './SiteHeader';
 import { HankoMark } from './HankoMark';
 import { BookIntro } from './BookIntro';
@@ -266,6 +266,10 @@ export function HomeClient() {
                         Capítulo {chapter.number}
                       </span>
                       <p className="mt-1 text-xs text-[#4A463F]">{chapter.pagesLabel}</p>
+                      <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-[#4A463F]/85">
+                        <Clock className="h-3 w-3 text-[#C82E36]" aria-hidden="true" />
+                        {estimateReadingTime(chapter).label}
+                      </span>
                     </div>
                   </div>
 
