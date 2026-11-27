@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { CHAPTERS } from '@/data/lotus-content';
 import { ChapterReader } from '@/components/ChapterReader';
+import { JsonLd } from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/site-url';
 
 export function generateStaticParams() {
   return CHAPTERS.map((chapter) => ({
@@ -67,12 +69,54 @@ export default async function ChapterPage({
   const chapter = CHAPTERS[index];
   const prevChapter = index > 0 ? CHAPTERS[index - 1] : null;
   const nextChapter = index < CHAPTERS.length - 1 ? CHAPTERS[index + 1] : null;
+  const siteUrl = getSiteUrl();
+  const chapterUrl = `${siteUrl}/capitulos/${chapter.slug}`;
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: `Capítulo ${chapter.number}: ${chapter.title}`,
+        description: chapter.originNote,
+        inLanguage: 'pt-BR',
+        url: chapterUrl,
+        image: `${siteUrl}${chapter.openingIllustration.src}`,
+        keywords: chapter.concepts.join(', '),
+        isPartOf: {
+          '@type': 'Book',
+          name: 'Lótus — Contos Orientais e Reflexões Intrapessoais',
+          url: siteUrl,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Lótus',
+            item: siteUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: `Capítulo ${chapter.number}: ${chapter.title}`,
+            item: chapterUrl,
+          },
+        ],
+      },
+    ],
+  };
 
   return (
-    <ChapterReader
-      chapter={chapter}
-      prevChapter={prevChapter}
-      nextChapter={nextChapter}
-    />
+    <>
+      <JsonLd data={structuredData} />
+      <ChapterReader
+        chapter={chapter}
+        prevChapter={prevChapter}
+        nextChapter={nextChapter}
+      />
+    </>
   );
 }
