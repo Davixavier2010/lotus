@@ -208,7 +208,7 @@ export function ChapterReader({
   }
 
   return (
-    <div className="washi-desk min-h-screen px-2.5 sm:px-6 lg:px-10">
+    <div className="washi-desk min-h-screen px-0 sm:px-6 lg:px-10">
       <div className="washi-sheet mx-auto min-h-screen max-w-4xl text-[#141416]">
         {/* Barra de progresso de leitura */}
       <motion.div

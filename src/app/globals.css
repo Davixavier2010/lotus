@@ -123,6 +123,13 @@
   background-size: 10px 64px;
 }
 
+@media (max-width: 640px) {
+  .washi-sheet::before,
+  .washi-sheet::after {
+    display: none;
+  }
+}
+
 .washi-sheet::before {
   left: -9px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='64' viewBox='0 0 10 64'%3E%3Cpath d='M10 0 L6 5 L8 11 L3 17 L7 23 L4 30 L8 36 L3 43 L7 50 L5 57 L10 64 Z' fill='%23EDE0C8'/%3E%3C/svg%3E");

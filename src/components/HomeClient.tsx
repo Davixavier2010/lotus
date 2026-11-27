@@ -36,7 +36,7 @@ export function HomeClient() {
   }, []);
 
   return (
-    <div className="washi-desk min-h-screen px-2.5 sm:px-6 lg:px-10">
+    <div className="washi-desk min-h-screen px-0 sm:px-6 lg:px-10">
       <BookIntro />
       <div className="washi-sheet mx-auto min-h-screen max-w-6xl text-[#141416]">
         <SiteHeader
