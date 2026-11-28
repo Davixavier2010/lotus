@@ -206,6 +206,11 @@ export const CHAPTERS: ChapterData[] = [
       src: '/ilustracoes/cap3-peixes.jpg',
       alt: 'Ilustração em sumi-ê de dois peixes koi, um preto e um prata, nadando em harmonia Yin-Yang cercados por gotas de água.',
     },
+    closingIllustration: {
+      src: '/ilustracoes/cap3-ponte.jpg',
+      alt: 'Ilustração original do autor de Zhuangzi e Huizi na ponte de madeira sobre o rio Hao, com sol poente e árvores orientais.',
+      fullBleed: false,
+    },
     storyParagraphs: [
       'Clima úmido nas margens do rio Hao, caminhando sobre a ponte de madeira envelhecida e contemplando as águas serenas, estavam Zhuangzi e seu amigo Huizi.',
       'Quando Zhuangzi observou dois peixes deslizando suavemente pela correnteza e comentou como eles pareciam felizes em sua liberdade nativa, Huizi, sempre apegado à lógica rigorosa, questionou imediatamente como Zhuangzi, sendo um homem e não um peixe, poderia realmente conhecer os sentimentos de uma criatura aquática. Então, Zhuangzi disse calmamente:',
